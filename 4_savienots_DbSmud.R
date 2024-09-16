@@ -1,10 +1,10 @@
-# Savieno t
-savienotas_t <- character(0)
+# Savieno tabulas
+savienotas_tabulas <- character(0)
+SID50_ailes <- append(SID50_ailes, "Conf")
 
-t_SID50 <- readRDS(paste0(base_path, "R_kods/t_SID50.rds"))
+tabulas_SID50 <- readRDS(paste0(base_path, "R_kods/tabulas_SID50.rds"))
 rindas_N <- readRDS(paste0(base_path, "R_kods/rindas_N.rds"))
 
-#1) Paņem 1. kP 
 for(i in kP) {
 
       switch(
@@ -27,9 +27,9 @@ for(i in kP) {
   split_template <- split(x2, x2$I)
   list2env(split_template, envir = environment())
   
-  rm(split_template, x2, T_212, T_216)
+  rm(split_template, x2, T_212)
 
-  for (k in t_SID50) {
+  for (k in tabulas_SID50) {
   
     switch(
       k,
@@ -51,6 +51,7 @@ for(i in kP) {
     )
     
     y <- get(paste0("T_", k))
+    y$G12 <- NULL
     
     if (sum(y$nT == k) == nrow(get(paste0("T_", k)))) {
       y <- y[, c("NOZ2", "G5")]
@@ -59,6 +60,8 @@ for(i in kP) {
       merged_DF$THSD_EUR <- merged_DF$G5
       merged_DF$G5 <- NULL
       
+      merged_DF <- merge(merged_DF, T_216[,c("NOZ2", "G12")], by.x = "N", by.y = "NOZ2")
+      colnames(merged_DF)[colnames(merged_DF) == "G12"] <- "Conf"
       rm(list = c(paste0("T_", k), ind), y)
     } else {
       stop("4_savienots_DBarSMUD: Tabulu nesakritība! \n")
@@ -71,13 +74,12 @@ for(i in kP) {
     assign(name_df, merged_DF)
     rm(merged_DF)
     
-    savienotas_t <-  append(savienotas_t, name_df)
+    savienotas_tabulas <-  append(savienotas_tabulas, name_df)
 
   }  
 }
 
 rm(i, ind, j, k, name_df)
-
 
 for(g in kP) {
   switch(
@@ -93,8 +95,8 @@ x1$I <- "LC_OTH_TAX"
 nameDF <- paste0("k", substr(g, 3, 5), "T335_TAX")
 assign(nameDF, x1)
 
-savienotas_t <-  append(savienotas_t, nameDF)
+savienotas_tabulas <-  append(savienotas_tabulas, nameDF)
 rm(x1, nameDF)
 }
 
-rm(LC_OTH_TAX, g, l, t_SID50)
+rm(LC_OTH_TAX, g, l, tabulas_SID50, T_216)
